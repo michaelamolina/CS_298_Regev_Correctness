@@ -15,20 +15,7 @@ fn main() {
     let mut B = alpha(n as f64);
     let mut E = 0.5;
     let m = ((1.0 + E) * (n as f64 + 1.0) * (p as f64).log2());
-    //println!("percentage correct should be {}", 1.0-E);
     let m = m.round() as u64;
-    /*println!("m = {}", m);
-    let mut correct = 0;
-    for i in 0..m {
-        let mut e = draw_element_from_X(p, B);
-        if e == 0 {
-            correct += 1;
-        }
-        println!("e = {}", e);
-    }
-    let mut percentage = (correct as f64 / m as f64);
-    println!("correct: {}/{} = {}%", correct, m, percentage);*/
-
     let mut s = vec![2,7,3];
     let mut a_vector = vec![
         vec![1,0,2],
@@ -77,8 +64,8 @@ fn main() {
         s: s.clone()
     };
     
-
-    let mut bit1 = 0; //rand::thread_rng().gen_range(0..2) as u64;
+    // test bit 0
+    let mut bit1 = 0; 
     let (pair, subset) = encrypt_bit(bit1, &public_key);
     let decrypted_bit = decrypt_bit(&pair, &private_key);
     let mut error_sum:u64 = 0;
@@ -93,7 +80,8 @@ fn main() {
         println!("0 decrypted incorrectly");
     }
 
-    let mut bit2 = 1; //rand::thread_rng().gen_range(0..2) as u64;
+    // test bit 1
+    let mut bit2 = 1; 
     let (pair, subset) = encrypt_bit(bit2, &public_key);
     let decrypted_bit = decrypt_bit(&pair, &private_key);
     let mut error_sum:u64 = 0;
@@ -107,21 +95,6 @@ fn main() {
     } else {
         println!("1 decrypted incorrectly");
     }
-
-
-
-    /*let mut a_vector = Vec::new();
-    for j in 0..20 {
-        let mut a = Vec::new();
-        for i in 0..3 {
-            a.push(rand::thread_rng().gen_range(0..10) as u64);
-        }
-        a_vector.push(a);
-    }
-
-    for v in &a_vector {
-        println!("{:?},", v);
-    }*/
 
 
     /*let (public_key, private_key) = create_system(5, 0.5);
@@ -147,37 +120,9 @@ fn main() {
     }  
     println!("correct = {}", correct);
     println!("incorrect = {}", incorrect);
-    //println!("correct = 1024");
-    //println!("incorrect = 0"); 
     println!("total = {}", total); */
 
-
 }
-
-/*pub fn time1(character_count:u64) {
-    let start = Instant::now();
-    let (public_key, private_key) = create_system(5, 0.5);
-    let mut text = &text::text()[0..character_count as usize];
-    let ciphertext = encrypt(text.to_string(), &public_key);
-    let plaintext = decrypt(&ciphertext, &private_key);
-    let duration = start.elapsed();
-    println!("duration for {} characters = {:?}", character_count, duration);
-}
-
-pub fn time2(n:u64, E:f64) { 
-    let start = Instant::now();
-    let (public_key, private_key) = create_system(n, E);
-    //println!("\npublic_key_size for parameters ({},{}) = {}", n, E, public_key.get_heap_size());
-    //println!("private_key_size for parameters ({},{}) = {}", n, E,  private_key.get_heap_size());
-    let mut text = &text::text()[0..64 as usize];
-    let ciphertext = encrypt(text.to_string(), &public_key);
-    println!("message size for parameters ({},{}) = {}", n, E, ciphertext.len()*8*n as usize);
-    let plaintext = decrypt(&ciphertext, &private_key);
-    let duration = start.elapsed();
-    //println!("duration for parameters ({},{}) = {:?}", n, E, duration);
-}*/
-    
-
 
 fn create_system(n:u64, E:f64) -> (public_key, private_key) {
     let mut lower = n*n;
@@ -187,41 +132,19 @@ fn create_system(n:u64, E:f64) -> (public_key, private_key) {
         println!("Error: p must be >= 2");
         process::exit(1);
     }
-    //println!("p = {}", p);
     let m = ((1.0 + E) * (n as f64 + 1.0) * (p as f64).log2());
     let m = m.round() as u64;
-    //println!("m = {}", m);
     let mut B = alpha(n as f64);
-    //println!("B = {}", B);
-    //let mut p = 4;
-    //let mut m = 6;
-    //let mut p = 5;
-    //let mut m = 3;
-    //let mut p = 6;
-    //let mut m = 4;
     let private_key = private_key {
         p: p,
         s: draw_vector_from_Znp(n, p)
     };
-    //println!("private_key = {{");
-    //println!("   p: {}", private_key.p);
-    //println!("   s: {:?}", private_key.s);
-    //println!("}}");
     let public_key = public_key {
         m: m,
         n: n,
         p: p,
         list: get_list(m, n, p, B, &private_key.s)
     };
-    //println!("public_key = {{");
-    //println!("   m: {}", public_key.m);
-    //println!("   n: {}", public_key.n);
-    //println!("   p: {}", public_key.p);
-    //println!("   list: ");
-    //for i in 0..public_key.list.len() {
-    //    println!("      ({:?},{})", public_key.list[i].a, public_key.list[i].b);
-    //}
-    //println!("}}");
     return (public_key, private_key);
 }
 
@@ -280,21 +203,9 @@ fn decrypt_bit(encrypted_bit:&pair, private_key:&private_key) -> u64 {
     let mut b = encrypted_bit.b.clone();
     let mut inner_product = inner_product(&a, &s, p);
     let mut point = (b as i64 - inner_product as i64).rem_euclid(p as i64) as u64;
-    //println!("point = {}", point);
-    //point = point.rem_euclid(p as i64);
     let mut q = (p as f64 / 2 as f64).floor() as u64;
     let mut circular_distance_to_0 = circular_distance(point as u64, 0, p);
     let mut circular_distance_to_q = circular_distance(point as u64, q, p);
-    //println!("circular distance to 0: {}", circular_distance_to_0);
-    //println!("circular distance to q: {}", circular_distance_to_q);
-    //println!("q = {}", q);
-    //let mut distance_to_0 = ((point as i64 - 0 as i64).abs()).rem_euclid(p as i64);
-    //let mut distance_to_0 = point;
-    //let mut distance_to_q = (point as i64 - q as i64).abs();
-    //println!("distance_to_0 = {}", distance_to_0);
-    //let mut distance_to_q = ((point as i64 - q as i64).abs()).rem_euclid(p as i64);
-    //let mut distance_to_q = (point as i64 - q as i64).rem_euclid(p as i64);
-    //println!("distance_to_q = {}", distance_to_q);
     if circular_distance_to_0 <= circular_distance_to_q {
         return 0;
     } else {
@@ -308,30 +219,22 @@ fn circular_distance(point:u64, target:u64, modulus:u64) -> u64 {
 }
 
 fn encrypt_bit(bit:u64, public_key:&public_key) -> (pair, Vec<u64>) {
-    //println!("\nencrypt bit: ");
-    //println!("bit = {}", bit);
     let m = public_key.m;
     let n = public_key.n;
     let p = public_key.p;
     let list = public_key.list.clone();
     let mut subset = choose_subset(m); 
-    //println!("subset = {:?}", subset);
     let mut x = vec![0; n as usize];
     let mut y = 0 as u64;
     for index in subset.clone() {
         let mut a = list[index as usize].a.clone();
         let mut b = list[index as usize].b.clone();
         x = add_vector(&x, &a, p);
-        y += b; // modulo p?
+        y += b; 
         y = y.rem_euclid(p);
         
     }
-    //println!("x.len() = {}", x.len());
     if bit == 0 {
-        //println!("pair = {{");
-        //println!("   a: {:?}", x);
-        //println!("   b: {}", y);
-        //println!("}}");
         let pair = pair {
             a: x,
             b: y
@@ -340,10 +243,6 @@ fn encrypt_bit(bit:u64, public_key:&public_key) -> (pair, Vec<u64>) {
     } else {
         y += (p as f64 / 2 as f64).floor() as u64;
         y = y.rem_euclid(p);
-        //println!("pair = {{");
-        //println!("   a: {:?}", x);
-        //println!("   b: {}", y);
-        //println!("}}");
         let pair = pair {
             a: x,
             b: y
